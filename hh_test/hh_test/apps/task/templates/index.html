@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block style %}
+<style>
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+    }
+
+    body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    table {
+        border-width: 1px;
+        border-color: #8ebf42;
+        background-color: #d9d9d9;
+    }
+
+    th {
+        border: 1px solid #095484;
+    }
+
+    td {
+        border: 1px solid #1c87c9;
+    }
+
+    .ip:hover {
+        cursor: pointer;
+    }
+
+    .info {
+        position: absolute;
+        top: 20%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 480px;
+        padding: 1rem;
+        border: 1px dotted green;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <p class="info">Для работы с IP необходимо дважды кликнуть по необходимому полю.
+        Откроется инпут для редактирования, после редактирования необходимо нажать Enter,
+        чтобы ip обновился в базе. Проверку на корректность ввода не далал.</p>
+    <table class="table">
+        <tr>
+            <th>имя интерфейса</th>
+            <th>IP</th>
+            <th>статус</th>
+            <th>MAC-адресс</th>
+            <th>MTU</th>
+        </tr>
+        {% for item in vmi %}
+        <tr>
+            <td>{{ item.name }}</td>
+            <td class="ip" id=pk_{{item.pk}}>{{ item.ip }}</td>
+            <td>{{ item.status }}</td>
+            <td>{{ item.mac_adress }}</td>
+            <td>{{ item.mtu }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<!-- css и js не стал выводить в отдельные файлы -->
+<script>
+    document.querySelector("table").addEventListener("dblclick", function(e) {
+        const currEl = e.target;
+
+        if (e.target.className == "ip") {
+            currEl.innerHTML = `<input type="text" value="${currEl.innerHTML}" autofocus>`;
+        }
+    });
+
+    document.querySelector("table").addEventListener("keyup", function(e) {
+        if (e.which == 13 || e.keyCode == 13) {
+            const currEl = e.target;
+            const pk = currEl.parentElement.id.split("_")[1];
+            const ip = currEl.value
+
+            currEl.parentElement.innerHTML = `${ip}`;
+
+            const response = fetch(`/update/${pk}/`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json',
+                "X-CSRFToken": '{{ csrf_token }}' },
+                body: JSON.stringify({ ip })
+            });
+        }
+    });
+</script>
+{% endblock %}

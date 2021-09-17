@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block style %}
+<style>
+html,
+body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+.form-wrapper {
+    display: inline-block;
+    padding: 1rem;
+    background-color: rgba(204, 204, 204, 0.548);
+    border-radius: 0.5rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-wrapper">
+    <h2>Log In</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+        <button type="submit">Log In</button>
+    </form>
+</div>
+{% endblock %}
